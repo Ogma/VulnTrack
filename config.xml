@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<config>
+	<options>
+		<email enabled="False"> 
+			<server>smtp.gmail.com</server>
+			<username>youraddress@gmail.com</username> 
+			<password>yourpassword</password> 
+			<recipient>youraddress@gmail.com</recipient>
+			<from> yourfromaddress@gmail.com</from>
+			<port>587</port>
+		</email>
+		
+		<log enabled="True" file="/var/log/VulnTrack.log"/>
+		<popup enabled="True"/>
+	</options>
+
+	<group value="Home Network">
+		<term value="Linux" and="Kernel">
+		</term>
+		<term value="FreeBSD"> </term>
+		<term value="Apache" and="Server">
+		</term>
+		<term value="Samba">
+		</term>
+		<term value="Microsoft"></term>
+		<term value="Firefox"></term>
+		<term value="Java"></term>
+		<term value="Adobe" and="flash"></term>
+		<term value="Qemu"></term>
+		<term value="VMware" and="Workstation"></term>
+		<term value="VMware" and="Tools"></term>
+		<term value="Netgear" and="N600"></term>
+	</group>
+	
+	<group value="Work">
+		<term value="Java"></term>
+		<term value="Cisco"></term>
+	</group>
+	
+	<group value="Target Network 1">
+		<term value="Sonicwall"></term>
+		<term value="Citrix" and="XenServer"> 
+			<exclude> XenCenterWeb </exclude>
+		</term>
+		<term value="Wordpress" and="plugin">
+			<exclude> XSS </exclude>
+		</term>
+		<term value="OpenSSL"> 
+			<exclude> DoS </exclude>
+		</term>
+		<term value="Microsoft" and="Windows">
+			<exclude> DoS </exclude>
+		</term>
+		<term value="Microsoft" and="Exchange"></term>
+		<term value="Cisco"></term>
+	</group>
+</config>
+
+
+
+
+	
+	
