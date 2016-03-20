@@ -1,4 +1,13 @@
 #!/usr/bin/python
+#VulnTrack by Ogma
+#License: GPL
+#            .__       .___.__                     
+#  __________ |  |    __| _/|__| ______________  ___
+# /  ___/  _ \|  |   / __ | |  |/ __ \_  __ \  \/  /
+# \___ (  <_> )  |__/ /_/ | |  \  ___/|  | \/>    < 
+#/____  >____/|____/\____ | |__|\___  >__|  /__/\_ \
+#     \/                 \/         \/            \/
+#				www.soldierx.com
 ########################################################################
 #	VulnTrack database class
 ########################################################################
@@ -21,9 +30,7 @@ class db(object):
 				link				text not null,
 				description		text not null,
 				date				text not null,
-				acknowledged				int not null,
 				terms			text not null,
-				alert			int not null,
 				constraint cve_unique unique(cve));""")
 			self.conn.execute("""
 			create table groups (
@@ -34,6 +41,8 @@ class db(object):
 			create table vulns_has_groups (
 				vulns_id			integer not null,
 				groups_id			integer not null,
+				alert				integer not null,
+				acknowledged		integer not null,
 				primary key(vulns_id, groups_id));""")
 		else:
 			self.conn = sqlite3.connect(self.dbfile)
@@ -42,8 +51,8 @@ class db(object):
 	def insert(self, vulnitem, group, searchterms):
 		cursor = self.conn.cursor()
 		cursor.execute("""
-		insert or ignore into vulns(cve, link, description, date, acknowledged, terms, alert) 
-		values( :cve, :link, :description, :date,0, :terms, 0);""", 
+		insert or ignore into vulns(cve, link, description, date, terms) 
+		values( :cve, :link, :description, :date, :terms);""", 
 		[vulnitem[0], vulnitem[1], vulnitem[2],vulnitem[3], searchterms])
 		# Retrieve vuln id  from the vulns table
 		cursor.execute("""select id from vulns where cve = :cve;""", (vulnitem[0], ))
@@ -58,7 +67,7 @@ class db(object):
 			cursor.execute("""insert into groups(name) values( :group );""", (group,))
 			group_id = cursor.lastrowid
 		# populate the vulns has group table
-		cursor.execute("""insert or ignore into vulns_has_groups(vulns_id, groups_id) values(:vuln, :group);""",(vuln_id,group_id))
+		cursor.execute("""insert or ignore into vulns_has_groups(vulns_id, groups_id, alert, acknowledged) values(:vuln, :group, 0, 0);""",(vuln_id,group_id))
 		self.conn.commit()
 
 	# Save changes to database
@@ -68,10 +77,9 @@ class db(object):
 	# Retrieve information 
 	def select(self):
 		cursor = self.conn.cursor()
-		cursor.execute("""select vulns.*, groups.name as group_name from vulns, vulns_has_groups, groups
-						where vulns.id = vulns_has_groups.vulns_id
-						and groups.id = vulns_has_groups.groups_id
-						and vulns.acknowledged = 0""")
+		cursor.execute("""select vulns.id, vulns.cve, vulns.link, vulns.description, vulns.date, vulns_has_groups.acknowledged, 
+		vulns.terms, vulns_has_groups.alert, groups.name as group_name from vulns, vulns_has_groups, groups where 
+		vulns.id = vulns_has_groups.vulns_id and groups.id = vulns_has_groups.groups_id and vulns_has_groups.acknowledged = 0;""")
 		return cursor.fetchall()
 	
 	# Get the number of vulnerabilities that haven't been alerted yet
@@ -80,22 +88,32 @@ class db(object):
 		cursor.execute("""select count(*) from vulns, vulns_has_groups, groups
 						where vulns.id = vulns_has_groups.vulns_id
 						and groups.id = vulns_has_groups.groups_id
-						and vulns.alert = 0""")
+						and vulns_has_groups.alert = 0""")
 		return cursor.fetchone()
 	
 	# Remove a vulnerability from the database
-	# Needs to be fixed up since I added groups
-	def remove(self, item):
-		self.conn.execute("""delete from vulns where id= :id""", (item,))
+	def remove(self, item, group=None):
+		if group is None: # Remove all instances of the vulnerability
+			self.conn.execute("""delete from vulns where id= :id""", (item,))
+			self.conn.execute("""delete from vulns_has_groups where vulns_id= :id""", (item,))
+		else: # only remove the CVE from that group
+			self.conn.execute("""delete from vulns_has_groups where
+			vulns_id= :id and 
+			vulns_has_groups.groups_id = (select id from groups where groups.name = :group)""", (item, group));
 		self.conn.commit()
 	
 	# Acknowledge a vulnerability so it won't show up in the window anymore
-	# Needs to be fixed up since I added groups
-	def acknowledge(self, item):
-		self.conn.execute("""update vulns set acknowledged=1 where id= :id""",(item,))
+	# This functionality will be expanded upon later to make it more useful
+	def acknowledge(self, item, group=None):
+		if group is None:
+			self.conn.execute("""update vulns_has_groups set acknowledged=1 where vulns_id= :id""",(item,))
+		else:
+			self.conn.execute("""update vulns_has_groups set acknowledged=1 where
+			vulns_id= :id and
+			vulns_has_groups.groups_id = (select id from groups where groups.name = :group)""", (item, group));
 		self.conn.commit()
 	
 	def togglealert(self):
-		self.conn.execute("update vulns set alert=1 where alert=0")
+		self.conn.execute("update vulns_has_groups set alert=1 where alert=0")
 		self.conn.commit()
 

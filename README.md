@@ -1,5 +1,5 @@
 # VulnTrack #
-Beta Release
+Alpha Release
 
 Pulls the NIST vulnerability feed regularly and matches it against your config file. 
 Matched vulnerabilities alert by desktop popup and/or email.

@@ -1,4 +1,13 @@
 #!/usr/bin/python
+#VulnTrack by Ogma
+#License: GPL
+#            .__       .___.__                     
+#  __________ |  |    __| _/|__| ______________  ___
+# /  ___/  _ \|  |   / __ | |  |/ __ \_  __ \  \/  /
+# \___ (  <_> )  |__/ /_/ | |  \  ___/|  | \/>    < 
+#/____  >____/|____/\____ | |__|\___  >__|  /__/\_ \
+#     \/                 \/         \/            \/
+#				www.soldierx.com
 import xml.etree.ElementTree as ET
 import httplib
 import re
@@ -78,7 +87,7 @@ class VulnList(object):
 				# If we are going to add the object to a list of matched vulnerabilities
 				if DataBase: 
 					# Adding to the list of Matched Vulnerabilities
-					print "Adding %s to database" % current.data[0]
+					print "%s matched based on %s." % (current.data[0], terms)
 					DataBase.insert(current.data, group, terms)
 				else: # Otherwise just print it out (for debugging and testing purposes
 						print "CVE:", current.data[0] 

@@ -1,4 +1,13 @@
 #!/usr/bin/python
+#VulnTrack by Ogma
+#License: GPL
+#            .__       .___.__                     
+#  __________ |  |    __| _/|__| ______________  ___
+# /  ___/  _ \|  |   / __ | |  |/ __ \_  __ \  \/  /
+# \___ (  <_> )  |__/ /_/ | |  \  ___/|  | \/>    < 
+#/____  >____/|____/\____ | |__|\___  >__|  /__/\_ \
+#     \/                 \/         \/            \/
+#				www.soldierx.com
 import vulndb
 import smtplib
 import xml.etree.ElementTree as ET

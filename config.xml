@@ -2,12 +2,12 @@
 <config>
 	<options>
 		<email enabled="False"> 
-			<server>smtp.gmail.com</server>
-			<username>youraddress@gmail.com</username> 
+			<server>smtp.yourserver.com</server>
+			<username>username@yourserver.com</username> 
 			<password>yourpassword</password> 
-			<recipient>youraddress@gmail.com</recipient>
-			<from> yourfromaddress@gmail.com</from>
-			<port>587</port>
+			<recipient>alertmailbox@yourserver.com</recipient>
+			<from>sendfrom@yourserver.com</from>
+			<port>25</port>
 		</email>
 		
 		<log enabled="True" file="/var/log/VulnTrack.log"/>

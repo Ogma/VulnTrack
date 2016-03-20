@@ -1,4 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+#VulnTrack by Ogma
+#License: GPL
+#            .__       .___.__                     
+#  __________ |  |    __| _/|__| ______________  ___
+# /  ___/  _ \|  |   / __ | |  |/ __ \_  __ \  \/  /
+# \___ (  <_> )  |__/ /_/ | |  \  ___/|  | \/>    < 
+#/____  >____/|____/\____ | |__|\___  >__|  /__/\_ \
+#     \/                 \/         \/            \/
+#				www.soldierx.com
 ########################################################################
 #	VulnTrack GTK Gui and Tray Applet
 ########################################################################
@@ -280,13 +289,35 @@ class NistWindow:
 			 self.linktt.set_tip(self.linkbutton1, model[treeiter][6])
 			 self.linkbutton1.set_uri(model[treeiter][6])
 			 self.dbindex = model[treeiter][0]
+			 self.vulngroup = model[treeiter][4]
 
 	
 	def action(self, widget, treeview, action):
+		msg = """Apply to all instances of this CVE across all groups?"""
+		messagedialog = gtk.MessageDialog(parent=None, flags=0, type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK, message_format=msg)
+
+		dialogarea = messagedialog.get_content_area()
+		msghbox = gtk.HBox()
+		chkaction = gtk.RadioButton(None,"Apply to all instances")
+		chkaction_1 = gtk.RadioButton(chkaction,"Apply to only this instance")
+		msghbox.pack_start(chkaction)
+		msghbox.pack_start(chkaction_1)
+		
+		dialogarea.pack_start(msghbox)
+		messagedialog.show_all()
+		messagedialog.run()
+		
 		if action == "acknowledge":
-			self.db.acknowledge(self.dbindex)
+			if chkaction.get_active():
+				self.db.acknowledge(self.dbindex) # Acknowledge all instances
+			else:
+				self.db.acknowledge(self.dbindex, self.vulngroup) # Acknowledge only this instance
 		elif action == "remove":
-			self.db.remove(self.dbindex)
+			if chkaction.get_active():
+				self.db.remove(self.dbindex) # Remove all instances
+			else:
+				self.db.remove(self.dbindex, self.vulngroup) # Remove only this instance.
+			
 		
 		selection = treeview.get_selection()
 		result = selection.get_selected()
@@ -298,7 +329,8 @@ class NistWindow:
 		model.remove(iter)
 		treeview.grab_focus()
 		selection.select_path( path[1][0][0] )
-	
+
+		messagedialog.destroy()
 	
 	# Open lin in browser
 	def openlink(self, widget, event):
